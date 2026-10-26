@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.localgov.example/v1/jurisdictional-comparison.json",
+  "title": "USLawEnforcementJurisdictionComparison",
+  "description": "Standardized schema for comparing statutory authority, geographic boundaries, primary mandates, and inter-agency operational parameters across US law enforcement jurisdictional tiers.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "jurisdiction_tiers"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "1.0.0"
+    },
+    "jurisdiction_tiers": {
+      "type": "array",
+      "description": "Comparative matrix covering municipal, county, state, and special jurisdiction tiers.",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/$defs/JurisdictionTierProfile"
+      }
+    }
+  },
+  "$defs": {
+    "JurisdictionTierProfile": {
+      "type": "object",
+      "required": [
+        "tier_category",
+        "representative_agency_types",
+        "governing_authority",
+        "geographic_boundary",
+        "statutory_authority",
+        "core_responsibilities",
+        "detention_and_corrections",
+        "interagency_coordination"
+      ],
+      "properties": {
+        "tier_category": {
+          "type": "string",
+          "enum": [
+            "MUNICIPAL",
+            "COUNTY",
+            "STATE",
+            "SPECIAL_JURISDICTION"
+          ]
+        },
+        "representative_agency_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            ["City Police Department", "Town Marshal Office"],
+            ["County Sheriff's Office", "County Police Department"],
+            ["State Police", "Highway Patrol", "State Bureau of Investigation (SBI/DCI)"],
+            ["Transit Police", "Port Authority Police", "University Campus Police", "Conservation/Fish & Wildlife"]
+          ]
+        },
+        "governing_authority": {
+          "$ref": "#/$defs/GovernanceStructure"
+        },
+        "geographic_boundary": {
+          "$ref": "#/$defs/BoundaryConstraints"
+        },
+        "statutory_authority": {
+          "$ref": "#/$defs/AuthorityScope"
+        },
+        "core_responsibilities": {
+          "$ref": "#/$defs/ResponsibilityProfile"
+        },
+        "detention_and_corrections": {
+          "$ref": "#/$defs/DetentionAuthority"
+        },
+        "interagency_coordination": {
+          "$ref": "#/$defs/InteragencyFramework"
+        }
+      }
+    },
+    "GovernanceStructure": {
+      "type": "object",
+      "required": [
+        "leadership_selection_method",
+        "oversight_body",
+        "primary_funding_source"
+      ],
+      "properties": {
+        "leadership_selection_method": {
+          "type": "string",
+          "enum": [
+            "ELECTED",
+            "APPOINTED_BY_CITY_EXECUTIVE",
+            "APPOINTED_BY_COUNTY_COMMISSION",
+            "APPOINTED_BY_GOVERNOR",
+            "APPOINTED_BY_SPECIAL_DISTRICT_BOARD"
+          ]
+        },
+        "oversight_body": {
+          "type": "string",
+          "examples": [
+            "City Council / City Manager",
+            "Board of County Commissioners / Direct Electorate",
+            "State Department of Public Safety / State Legislature",
+            "Transit Authority Board / University Board of Regents"
+          ]
+        },
+        "primary_funding_source": {
+          "type": "string",
+          "examples": [
+            "Municipal General Fund (Sales, Local Property, Utility Taxes)",
+            "County Ad Valorem Property Taxes, Dedicated Law Enforcement Levies",
+            "State General Fund, Highway Trust Funds, Surcharges",
+            "Dedicated District Levies, Rider Fares, University Tuition/Fees, Enterprise Funds"
+          ]
+        }
+      }
+    },
+    "BoundaryConstraints": {
+      "type": "object",
+      "required": [
+        "spatial_footprint",
+        "extraterritorial_arrest_power",
+        "hot_pursuit_limitations"
+      ],
+      "properties": {
+        "spatial_footprint": {
+          "type": "string",
+          "examples": [
+            "Incorporated municipal city limits and contiguous annexed territory",
+            "Entire geographical county, primary jurisdiction in unincorporated areas",
+            "Statewide across all counties, highways, state-owned lands, and incorporated cities",
+            "Dedicated real property, transit rights-of-way, airport terminals, campus facilities"
+          ]
+        },
+        "extraterritorial_arrest_power": {
+          "type": "string",
+          "enum": [
+            "LIMITED_TO_STATUTORY_MUTUAL_AID_OR_HOT_PURSUIT",
+            "FULL_CONCURRENT_WITHIN_COUNTY_BOUNDARIES",
+            "FULL_CONCURRENT_STATEWIDE",
+            "FACILITY_BOUNDED_WITH_EXTENDED_BUFFER_ZONE"
+          ]
+        },
+        "hot_pursuit_limitations": {
+          "type": "string",
+          "description": "Conditions under which officers may cross jurisdictional lines during active pursuit."
+        }
+      }
+    },
+    "AuthorityScope": {
+      "type": "object",
+      "required": [
+        "post_certification_required",
+        "penal_code_enforcement",
+        "traffic_code_enforcement",
+        "local_ordinance_enforcement",
+        "civil_process_execution"
+      ],
+      "properties": {
+        "post_certification_required": {
+          "type": "boolean",
+          "description": "Requires State Peace Officer Standards and Training certification."
+        },
+        "penal_code_enforcement": {
+          "type": "string",
+          "enum": [
+            "FULL_FELONY_AND_MISDEMEANOR",
+            "LIMITED_TO_SPECIALIZED_STATUTES",
+            "INVESTIGATIVE_SUPPORT_ONLY"
+          ]
+        },
+        "traffic_code_enforcement": {
+          "type": "string",
+          "enum": [
+            "PRIMARY_URBAN_ARTERIALS",
+            "PRIMARY_COUNTY_ROADS",
+            "PRIMARY_INTERSTATE_AND_HIGHWAY",
+            "FACILITY_INTERNAL_ROADWAYS_ONLY"
+          ]
+        },
+        "local_ordinance_enforcement": {
+          "type": "boolean",
+          "description": "Authority to enforce municipal codes, zoning codes, and local civil infractions."
+        },
+        "civil_process_execution": {
+          "type": "boolean",
+          "description": "Mandated execution of evictions, subpoenas, writs of execution, and property levies."
+        }
+      }
+    },
+    "ResponsibilityProfile": {
+      "type": "object",
+      "required": [
+        "primary_patrol_focus",
+        "investigative_mandate",
+        "specialized_units",
+        "court_security_mandate"
+      ],
+      "properties": {
+        "primary_patrol_focus": {
+          "type": "string"
+        },
+        "investigative_mandate": {
+          "type": "string",
+          "examples": [
+            "Local Part I/II crimes occurring within municipal boundary",
+            "Crimes in unincorporated county areas, complex homicide/burglary support for small towns",
+            "Multi-county organized crime, public integrity/corruption, state officer-involved shootings",
+            "Internal facility crimes, infrastructure sabotage, asset theft, wildlife poaching"
+          ]
+        },
+        "specialized_units": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "court_security_mandate": {
+          "type": "boolean",
+          "description": "Statutory responsibility for county/state courthouse screening and bailiff operations."
+        }
+      }
+    },
+    "DetentionAuthority": {
+      "type": "object",
+      "required": [
+        "operates_holding_cells",
+        "operates_county_or_state_jail",
+        "inmate_transport_mandate"
+      ],
+      "properties": {
+        "operates_holding_cells": {
+          "type": "boolean",
+          "description": "Short-term temporary booking or holding facilities (under 72 hours)."
+        },
+        "operates_county_or_state_jail": {
+          "type": "boolean",
+          "description": "Long-term pre-trial detention facilities and sentenced county jail populations."
+        },
+        "inmate_transport_mandate": {
+          "type": "boolean",
+          "description": "Statutory transport of inmates between courts, medical facilities, and correctional institutions."
+        }
+      }
+    },
+    "InteragencyFramework": {
+      "type": "object",
+      "required": [
+        "mutual_aid_framework",
+        "concurrent_jurisdiction_relationships",
+        "rms_cad_federation_role"
+      ],
+      "properties": {
+        "mutual_aid_framework": {
+          "type": "string",
+          "examples": [
+            "State Emergency Management Mutual Aid Agreement / Local Memorandum of Understanding (MOU)",
+            "Countywide Inter-Local Agreement (ILA) and regional SWAT/special response compacts",
+            "Statewide Emergency Management Assistance Compact (EMAC) coordinator",
+            "Specialized cooperative agreements with host municipal and county agencies"
+          ]
+        },
+        "concurrent_jurisdiction_relationships": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rms_cad_federation_role": {
+          "type": "string",
+          "enum": [
+            "LOCAL_DISPATCH_AND_RECORDS_PRODUCER",
+            "COUNTYWIDE_CENTRAL_CLEARINGHOUSE",
+            "STATE_CRIME_INFORMATION_CENTER_NODE",
+            "ENTERPRISE_SYSTEM_WITH_LOCAL_DISPATCH_HANDOFF"
+          ]
+        }
+      }
+    }
+  }
+}
