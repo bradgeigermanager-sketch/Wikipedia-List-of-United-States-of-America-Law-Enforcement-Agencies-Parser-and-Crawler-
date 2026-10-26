@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0.0",
+  "jurisdiction_tiers": [
+    {
+      "tier_category": "MUNICIPAL",
+      "representative_agency_types": [
+        "City Police Department",
+        "Town Marshal",
+        "Metropolitan Police Department"
+      ],
+      "governing_authority": {
+        "leadership_selection_method": "APPOINTED_BY_CITY_EXECUTIVE",
+        "oversight_body": "Mayor, City Council, or Board of Police Commissioners",
+        "primary_funding_source": "Municipal General Fund (local sales, utility, and property taxes)"
+      },
+      "geographic_boundary": {
+        "spatial_footprint": "Incorporated city/town corporate boundaries and annexed territories.",
+        "extraterritorial_arrest_power": "LIMITED_TO_STATUTORY_MUTUAL_AID_OR_HOT_PURSUIT",
+        "hot_pursuit_limitations": "Immediate continuous pursuit across municipal lines for fresh crimes; requires immediate notification of host jurisdiction dispatch."
+      },
+      "statutory_authority": {
+        "post_certification_required": true,
+        "penal_code_enforcement": "FULL_FELONY_AND_MISDEMEANOR",
+        "traffic_code_enforcement": "PRIMARY_URBAN_ARTERIALS",
+        "local_ordinance_enforcement": true,
+        "civil_process_execution": false
+      },
+      "core_responsibilities": {
+        "primary_patrol_focus": "Routine urban/suburban patrol, proactive crime suppression, rapid 911 emergency response.",
+        "investigative_mandate": "Property crimes, assaults, robberies, local homicides, traffic crashes within municipal limits.",
+        "specialized_units": [
+          "SWAT/SRT",
+          "K-9 Units",
+          "Traffic Collision Reconstruction",
+          "Community Policing / School Resource Officers (SRO)"
+        ],
+        "court_security_mandate": false
+      },
+      "detention_and_corrections": {
+        "operates_holding_cells": true,
+        "operates_county_or_state_jail": false,
+        "inmate_transport_mandate": false
+      },
+      "interagency_coordination": {
+        "mutual_aid_framework": "Local MOUs with neighboring cities and the overarching county sheriff's department.",
+        "concurrent_jurisdiction_relationships": [
+          "Shared territorial jurisdiction with the County Sheriff",
+          "Overlapping highway authority with the State Police/Highway Patrol"
+        ],
+        "rms_cad_federation_role": "LOCAL_DISPATCH_AND_RECORDS_PRODUCER"
+      }
+    },
+    {
+      "tier_category": "COUNTY",
+      "representative_agency_types": [
+        "County Sheriff's Office",
+        "County Police Department"
+      ],
+      "governing_authority": {
+        "leadership_selection_method": "ELECTED",
+        "oversight_body": "Direct electorate (constitutional officer) and Board of County Commissioners (budgetary authority)",
+        "primary_funding_source": "County ad valorem property tax levies, county general fund, service fees"
+      },
+      "geographic_boundary": {
+        "spatial_footprint": "Entire geographical county, with primary dedicated patrol concentrated in unincorporated areas.",
+        "extraterritorial_arrest_power": "FULL_CONCURRENT_WITHIN_COUNTY_BOUNDARIES",
+        "hot_pursuit_limitations": "Unrestricted across municipal lines within the home county; inter-county pursuit governed by state statutory contiguous county provisions."
+      },
+      "statutory_authority": {
+        "post_certification_required": true,
+        "penal_code_enforcement": "FULL_FELONY_AND_MISDEMEANOR",
+        "traffic_code_enforcement": "PRIMARY_COUNTY_ROADS",
+        "local_ordinance_enforcement": false,
+        "civil_process_execution": true
+      },
+      "core_responsibilities": {
+        "primary_patrol_focus": "Rural road patrol, unincorporated community enforcement, contract policing for un-policed townships.",
+        "investigative_mandate": "All crimes in unincorporated county zones; primary backup/major crime assistance for small municipal agencies.",
+        "specialized_units": [
+          "Search and Rescue (SAR)",
+          "Civil Process / Evictions Division",
+          "Mounted Patrol",
+          "Regional Tactical Units"
+        ],
+        "court_security_mandate": true
+      },
+      "detention_and_corrections": {
+        "operates_holding_cells": true,
+        "operates_county_or_state_jail": true,
+        "inmate_transport_mandate": true
+      },
+      "interagency_coordination": {
+        "mutual_aid_framework": "Countywide inter-local mutual aid agreements (ILAs), statewide sheriff association pacts.",
+        "concurrent_jurisdiction_relationships": [
+          "Concurrent peace officer authority inside every incorporated city within county boundaries",
+          "Liaison with state department of corrections for felon intake"
+        ],
+        "rms_cad_federation_role": "COUNTYWIDE_CENTRAL_CLEARINGHOUSE"
+      }
+    },
+    {
+      "tier_category": "STATE",
+      "representative_agency_types": [
+        "State Police",
+        "Highway Patrol",
+        "State Bureau of Investigation (SBI/DCI)",
+        "Department of Public Safety"
+      ],
+      "governing_authority": {
+        "leadership_selection_method": "APPOINTED_BY_GOVERNOR",
+        "oversight_body": "Governor, Cabinet Secretary of Public Safety, State Legislature",
+        "primary_funding_source": "State general fund, fuel tax trust funds, motor vehicle registration surcharges"
+      },
+      "geographic_boundary": {
+        "spatial_footprint": "Statewide jurisdiction spanning all counties, interstate systems, state trunk highways, and capital complexes.",
+        "extraterritorial_arrest_power": "FULL_CONCURRENT_STATEWIDE",
+        "hot_pursuit_limitations": "Statewide reach; cross-border pursuits governed by interstate compacts and uniform fresh pursuit statutes."
+      },
+      "statutory_authority": {
+        "post_certification_required": true,
+        "penal_code_enforcement": "FULL_FELONY_AND_MISDEMEANOR",
+        "traffic_code_enforcement": "PRIMARY_INTERSTATE_AND_HIGHWAY",
+        "local_ordinance_enforcement": false,
+        "civil_process_execution": false
+      },
+      "core_responsibilities": {
+        "primary_patrol_focus": "Interstate traffic safety, commercial motor vehicle enforcement (DOT/CVSA), executive protection for state officials.",
+        "investigative_mandate": "Public corruption, state-level narcotics trafficking, officer-involved shooting investigations, state forensic lab support.",
+        "specialized_units": [
+          "Aviation / Air Support",
+          "Commercial Vehicle Enforcement (CVE)",
+          "Dignitary Protection",
+          "Explosive Ordnance Disposal (EOD)",
+          "Statewide Forensic Labs"
+        ],
+        "court_security_mandate": false
+      },
+      "detention_and_corrections": {
+        "operates_holding_cells": true,
+        "operates_county_or_state_jail": false,
+        "inmate_transport_mandate": false
+      },
+      "interagency_coordination": {
+        "mutual_aid_framework": "Emergency Management Assistance Compact (EMAC) coordinator; statewide disaster response lead.",
+        "concurrent_jurisdiction_relationships": [
+          "Complete concurrent jurisdiction across all county and municipal bounds",
+          "Primary liaison to federal law enforcement task forces (FBI, DEA, USMS)"
+        ],
+        "rms_cad_federation_role": "STATE_CRIME_INFORMATION_CENTER_NODE"
+      }
+    },
+    {
+      "tier_category": "SPECIAL_JURISDICTION",
+      "representative_agency_types": [
+        "Transit Police",
+        "Port Authority Police",
+        "University Campus Police",
+        "Department of Conservation / Wildlife Enforcement",
+        "Airport Police"
+      ],
+      "governing_authority": {
+        "leadership_selection_method": "APPOINTED_BY_SPECIAL_DISTRICT_BOARD",
+        "oversight_body": "Special District Board, Transit Authority, Board of Regents, or State Resource Commission",
+        "primary_funding_source": "Enterprise user fees, transit revenues, student fees, hunting/fishing licenses, port operational tariffs"
+      },
+      "geographic_boundary": {
+        "spatial_footprint": "Bounded by designated operational footprint (rail rights-of-way, college campuses, airport grounds, public waterways).",
+        "extraterritorial_arrest_power": "FACILITY_BOUNDED_WITH_EXTENDED_BUFFER_ZONE",
+        "hot_pursuit_limitations": "Permitted off-premises when pursuit initiates on property or in close nexus to facility assets."
+      },
+      "statutory_authority": {
+        "post_certification_required": true,
+        "penal_code_enforcement": "FULL_FELONY_AND_MISDEMEANOR",
+        "traffic_code_enforcement": "FACILITY_INTERNAL_ROADWAYS_ONLY",
+        "local_ordinance_enforcement": false,
+        "civil_process_execution": false
+      },
+      "core_responsibilities": {
+        "primary_patrol_focus": "Asset protection, transit rider safety, critical infrastructure perimeter control, campus safety / Clery Act reporting, game/resource conservation.",
+        "investigative_mandate": "Incidents and crimes occurring on or directly threatening infrastructure, facilities, students, or state natural resources.",
+        "specialized_units": [
+          "K-9 Vapor Wake / Explosive Detection",
+          "Maritime / Boat Patrol",
+          "Critical Infrastructure Hardening",
+          "Environmental Crime Investigation"
+        ],
+        "court_security_mandate": false
+      },
+      "detention_and_corrections": {
+        "operates_holding_cells": true,
+        "operates_county_or_state_jail": false,
+        "inmate_transport_mandate": false
+      },
+      "interagency_coordination": {
+        "mutual_aid_framework": "Dedicated statutory MOUs with host city police departments and surrounding sheriff offices.",
+        "concurrent_jurisdiction_relationships": [
+          "Shares concurrent primary policing jurisdiction with host municipal police department",
+          "Secondary backup from county sheriff"
+        ],
+        "rms_cad_federation_role": "ENTERPRISE_SYSTEM_WITH_LOCAL_DISPATCH_HANDOFF"
+      }
+    }
+  ]
+}
+
