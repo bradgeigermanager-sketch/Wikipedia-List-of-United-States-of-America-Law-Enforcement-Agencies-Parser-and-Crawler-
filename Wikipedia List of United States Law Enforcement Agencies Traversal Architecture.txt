@@ -1,0 +1,236 @@
+Hierarchical Traversal Architecture
+[Layer 0: Root Index]
+  └── List of United States state and local law enforcement agencies
+        │
+        ├── [Layer 1: Jurisdictional Partition (State/Territory Level)]
+        │     └── e.g., "List of law enforcement agencies in Wyoming"
+        │           │
+        │           ├── [Layer 2: Operational Classification Block]
+        │           │     ├── Statewide Agencies (Highway Patrol, DCI, AG)
+        │           │     ├── County Agencies (Sheriff's Offices)
+        │           │     ├── Municipal Agencies (City PDs, Town Marshals)
+        │           │     └── Special Jurisdiction (University PD, Airport, Game & Fish)
+        │           │           │
+        │           │           └── [Layer 3: Target Agency Entity]
+        │           │                 ├── Internal Path: Dedicated Agency Wikipedia Page
+        │           │                 └── External Path: Official Agency Domain (.gov / .us / .org)
+
+Navigation & Discovery Algorithm (Pseudocode)
+"""
+Algorithm: Wikipedia Law Enforcement Hierarchy Traversal & Verification
+Objective: Traverse from root index down to individual agency nodes,
+           evaluating Wikipedia article availability and resolving verified external endpoints.
+"""
+
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Dict, List, Optional
+import re
+from urllib.parse import urlparse
+
+class TierType(Enum):
+    ROOT = "ROOT"
+    JURISDICTION_LIST = "JURISDICTION_LIST"      # e.g., "List of law enforcement agencies in [State]"
+    CLASSIFICATION_SECTION = "CLASSIFICATION"   # State, County, Municipal, Special
+    AGENCY_LEAF = "AGENCY_LEAF"                 # Specific Agency Node
+
+class ResolutionPath(Enum):
+    INTERNAL_WIKI = "INTERNAL_WIKI"             # Page exists on Wikipedia
+    RED_LINK = "RED_LINK"                       # Internal link target does not exist
+    UNLINKED_TEXT = "UNLINKED_TEXT"             # Plain-text entry on sub-list
+    EXTERNAL_OFFICIAL = "EXTERNAL_OFFICIAL"     # Authoritative external web link
+
+@dataclass
+class AgencyTargetNode:
+    raw_name: str
+    jurisdiction_state: str
+    tier: str
+    wiki_title: Optional[str] = None
+    wiki_url: Optional[str] = None
+    external_url: Optional[str] = None
+    resolution_path: ResolutionPath = ResolutionPath.UNLINKED_TEXT
+    metadata: Dict[str, str] = field(default_factory=dict)
+
+
+class LawEnforcementDirectoryCrawler:
+    def __init__(self, root_url: str):
+        self.root_url = root_url
+        self.domain = "https://en.wikipedia.org"
+        
+        # Valid classification headers across state-level sub-pages
+        self.section_patterns = {
+            "STATEWIDE": r"(State\s+agencies|Statewide|State\s+Police|State\s+Patrol)",
+            "COUNTY": r"(County\s+agencies|Sheriff|County\s+Police)",
+            "MUNICIPAL": r"(Municipal\s+agencies|City\s+police|Town\s+marshals)",
+            "SPECIAL": r"(Special\s+jurisdiction|College\s+and\s+university|Transit|Port|Park|Conservation)"
+        }
+
+    # STEP 1: Traverse from Root Index to State/Territory Sub-Pages
+    def extract_jurisdiction_subpages(self, root_html: str) -> List[Dict[str, str]]:
+        """
+        Parses root page elements matching:
+        /wiki/List_of_law_enforcement_agencies_in_[State]
+        or /wiki/Law_enforcement_in_[Territory]
+        """
+        subpages = []
+        # Target href matching patterns for the 50 states + DC + 5 territories
+        href_regex = re.compile(r'/wiki/(List_of_law_enforcement_agencies_in_[A-Za-z_]+|Law_enforcement_in_[A-Za-z_]+)')
+        
+        links = href_regex.findall(root_html)
+        for link in set(links):
+            state_key = link.replace("List_of_law_enforcement_agencies_in_", "").replace("Law_enforcement_in_", "")
+            subpages.append({
+                "jurisdiction": state_key.replace("_", " "),
+                "url": f"{self.domain}/wiki/{link}"
+            })
+        return sorted(subpages, key=lambda x: x["jurisdiction"])
+
+    # STEP 2: Branch into Operational Sections within State Sub-Page
+    def parse_state_page_sections(self, state_html: str) -> Dict[str, List[str]]:
+        """
+        Partitions the DOM into sections: Statewide, County, Municipal, Special.
+        Returns mapped HTML chunks per operational tier.
+        """
+        tier_blocks = {"STATEWIDE": [], "COUNTY": [], "MUNICIPAL": [], "SPECIAL": []}
+        current_tier = None
+
+        # Parse DOM headers (h2, h3) and list blocks (ul, ol, table)
+        for line in state_html.splitlines():
+            matched_header = False
+            for tier, pattern in self.section_patterns.items():
+                if re.search(pattern, line, re.IGNORECASE):
+                    current_tier = tier
+                    matched_header = True
+                    break
+            
+            if not matched_header and current_tier:
+                tier_blocks[current_tier].append(line)
+
+        return {k: "\n".join(v) for k, v in tier_blocks.items()}
+
+    # STEP 3: Agency Extraction & Resolution Logic
+    def resolve_agency_leaf(self, entry_html: str, jurisdiction: str, tier: str) -> AgencyTargetNode:
+        """
+        Evaluates an individual line item or table row to decide:
+        Branch A: Entity has active Wikipedia page.
+        Branch B: Entity has a red link (stub candidate).
+        Branch C: Entity is unlinked text.
+        """
+        node = AgencyTargetNode(
+            raw_name="",
+            jurisdiction_state=jurisdiction,
+            tier=tier
+        )
+
+        # Check for Wikipedia hyperlink
+        link_match = re.search(r'<a\s+href="(/wiki/[^"]+)"(?:\s+class="([^"]*)")?[^>]*>([^<]+)</a>', entry_html)
+        
+        if link_match:
+            href, css_class, anchor_text = link_match.groups()
+            node.raw_name = anchor_text.strip()
+            
+            if css_class and "new" in css_class:
+                # Wikipedia Red Link (Article does not exist yet)
+                node.resolution_path = ResolutionPath.RED_LINK
+                node.wiki_title = href.replace("/wiki/", "")
+            else:
+                # Active Wikipedia Article
+                node.resolution_path = ResolutionPath.INTERNAL_WIKI
+                node.wiki_url = f"{self.domain}{href}"
+                node.wiki_title = href.replace("/wiki/", "")
+        else:
+            # Unlinked plain text list item
+            node.raw_name = re.sub(r'<[^>]+>', '', entry_html).strip()
+            node.resolution_path = ResolutionPath.UNLINKED_TEXT
+
+        return node
+
+    # STEP 4: External Web Link Resolution
+    def extract_external_endpoint(self, node: AgencyTargetNode, wiki_article_html: Optional[str] = None) -> Optional[str]:
+        """
+        Discovers verified external official websites using a 3-tier fallback branch:
+        Branch 1: Parse Wikipedia Infobox `website = {{URL|...}}` or official site param.
+        Branch 2: Parse "External links" section at bottom of Wikipedia article.
+        Branch 3: Derive authoritative government URI pattern based on jurisdiction and tier.
+        """
+        # Branch 1 & 2: Process from Wikipedia page if available
+        if wiki_article_html:
+            # Infobox website extraction
+            infobox_url_match = re.search(r'class="infobox-data"[^>]*><a\s+rel="nofollow"\s+class="external\s+text"\s+href="([^"]+)"', wiki_article_html)
+            if infobox_url_match:
+                node.external_url = infobox_url_match.group(1)
+                return node.external_url
+            
+            # External Links section extraction
+            ext_section_match = re.search(r'id="External_links".*?<ul>(.*?)</ul>', wiki_article_html, re.DOTALL)
+            if ext_section_match:
+                official_links = re.findall(r'<a\s+rel="nofollow"\s+class="external\s+text"\s+href="([^"]+)"', ext_section_match.group(1))
+                if official_links:
+                    node.external_url = official_links[0]
+                    return node.external_url
+
+        # Branch 3: Deterministic fallback heuristics for missing articles/red links
+        node.external_url = self._derive_authoritative_fallback(node)
+        return node.external_url
+
+    def _derive_authoritative_fallback(self, node: AgencyTargetNode) -> str:
+        """
+        Constructs expected top-level public sector domains based on entity name and tier.
+        Ensures strict targeting of .gov and .us county/municipal namespaces.
+        """
+        clean_name = re.sub(r'[^\w\s]', '', node.raw_name).lower()
+        
+        if node.tier == "COUNTY":
+            # Heuristic: [county]countywy.gov, [county]county.gov, or [county]sheriff.org
+            return f"https://www.{clean_name.replace(' ', '')}.gov"
+        elif node.tier == "MUNICIPAL":
+            # Heuristic: cityof[city].[state].gov or [city]pd.org
+            return f"https://www.{clean_name.replace(' ', '')}.gov"
+        elif node.tier == "STATEWIDE":
+            # State agency directory portals
+            return f"https://www.{clean_name.replace(' ', '')}.state.{node.jurisdiction_state.lower().replace(' ', '')}.us"
+        
+        return "https://www.usa.gov/local-governments"
+
+Operational Decision Rules
+                      [Is Entry a Link on State Sub-Page?]
+                                    /       \
+                                  Yes        No
+                                 /             \
+            [Is Link CSS Class == 'new'?]       [Route: UNLINKED_TEXT]
+                   /              \                           |
+                 Yes               No                         |
+                /                   \                         |
+     [Route: RED_LINK]       [Route: INTERNAL_WIKI]           |
+            |                         |                       |
+            |                [Fetch Article HTML]             |
+            |                         |                       |
+            |              [Infobox Website Exists?]          |
+            |                       /       \                 |
+            |                     Yes        No               |
+            |                    /             \              |
+            |          [Extract Link]   [Check Ext Links]     |
+            |                                 /     \         |
+            |                               Yes      No       |
+            |                               /          \      |
+            |                     [Extract Link]        |     |
+            |                            |              |     |
+            \----------------------------+--------------+-----/
+                                         |
+                       [Is External Link Known/Extracted?]
+                                    /         \
+                                  Yes          No
+                                 /               \
+                       [Emit Primary Node]   [Apply Heuristic Fallback]
+                                                     |
+                                            [.gov / .us / .org Path]
+
+ * State Sub-Page Identification: Only capture anchors matching List_of_law_enforcement_agencies_in_* and Law_enforcement_in_*. Exclude utility, category, or discussion links.
+ * Tier Segregation: Section text boundaries must be established by checking headers (h2, h3, dt) against known tier regex patterns (Statewide, County, Municipal, Special) before item extraction.
+ * Internal Destination Validation:
+   * Anchor tags containing class="new" indicate the article does not exist (Red Link). Store the entity name as an unbacked node without attempting to fetch an internal page.
+   * Standard /wiki/* paths indicate valid internal pages.
+ * External Link Prioritization:
+   * Priority 1: The website or url field inside an Infobox (infobox-data, vcard, or raw {{URL|...}}).
+   * Priority 2: The first anchor in the ## External links section containing Official website or equivalent labels.
+   * Priority 3 (Fallback): Construct expected authoritative domains (.gov, .us, or official public-safety .org) using jurisdiction parameters.
